@@ -9,31 +9,27 @@ import (
 )
 
 func TestUnRar(t *testing.T) {
-	tc := struct {
-		filename  string
-		extracted []string
-		want      []string
+	tcs := []struct {
+		filename string
+		want     []string
 	}{
-		"./test/test.tar",
-		[]string{},
-		[]string{
-			"test/tmp/Office comparison.pdf",
-			"test/tmp/自述文件.txt",
-			"test/tmp/license-zh-cn.rtf",
-			"test/tmp/hunspell-license-zh-cn.txt",
-			"test/tmp/biblio.dbf",
-			"test/tmp/tmw.dbf",
-			"test/tmp/tmsmart.dat",
-		},
+		{"./test/test.7z", []string{"test/tmp/7z"}},
+		{"./test/test.tar", []string{"test/tmp/tar"}},
+		{"./test/test.bz2", []string{"test/tmp/bz2"}},
+		{"./test/test.tar.bz2", []string{"test/tmp/tarbz2"}},
+		{"./test/test.tar.gz", []string{"test/tmp/targz"}},
+		{"./test/test.rar", []string{"test/tmp/rar"}},
 	}
-	f := &File{path: tc.filename}
-	err := unRar(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tc.extracted = getlist("./test/tmp")
-	if !sliceCmp(tc.want, tc.extracted) {
-		t.Errorf("\nwant: %v\ngot: %v\n", tc.want, tc.extracted)
+	for _, tc := range tcs {
+		f := &File{path: tc.filename}
+		err := unRar(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		got := getlist("./test/tmp")
+		if !sliceCmp(tc.want, got) {
+			t.Errorf("\nwant: %v\ngot: %v\n", tc.want, got)
+		}
 	}
 }
 

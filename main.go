@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gen2brain/go-unarr"
+	"github.com/wedojava/go-unarr"
 )
 
 type File struct {
