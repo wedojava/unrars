@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -21,10 +22,12 @@ type File struct {
 	modTime time.Time
 }
 
-var source = flag.String("s", "./archives", "where is archives?")
-
-var done = make(chan struct{})
-var sema chan struct{}
+var (
+	source      = flag.String("s", "./archives", "where is archives at?")
+	destination = flag.String("d", "./decompressed", "decompress to where?")
+	done        = make(chan struct{})
+	sema        chan struct{}
+)
 
 func cancelled() bool {
 	select {
@@ -96,9 +99,10 @@ func handle(src, des string) {
 		go func(f *File) {
 			n.Done()
 			start := time.Now()
-			err := Unarchive(f.path, "./archives")
+			err := Unarchive(f.path, filepath.Join(des, f.name))
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
+				return
 			}
 			fmt.Printf("%s, %s, %d bytes\n", f.name, time.Since(start), f.size)
 		}(f)
@@ -107,7 +111,11 @@ func handle(src, des string) {
 }
 
 func main() {
-	defer func() { select {} }()
+	start := time.Now()
+	defer func() {
+		fmt.Printf("\nTime consumed: %d\n", time.Since(start))
+		select {}
+	}()
 	flag.Parse()
 	go func() {
 		os.Stdin.Read(make([]byte, 1)) // read a single byte.
@@ -118,5 +126,5 @@ func main() {
 	runtime.GOMAXPROCS(cpuUseNum)
 	sema = make(chan struct{}, cpuUseNum)
 	// go handle("./test", "./unarchives")
-	go handle(*source, "./unarchives")
+	go handle(*source, *destination)
 }
