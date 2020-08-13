@@ -1,0 +1,7 @@
+﻿SoftMaker Office 使用 Hunspell 库为 SoftMaker 的自有字典不支持的语言提供拼写检查。我们感谢 Hunspell 开发人员团队的杰出工作。
+
+Hunspell 获 GPL、LGPL 和 MPL 三个许可授权。SoftMaker 选择遵照 MPL (Mozilla Public License) 授权 Hunspell 开发人员的 Hunspell。
+
+请注意，MPL 仅适用于 Hunspell，并不适用于作为闭源软件的 SoftMaker Office 任何其他部分。
+
+SoftMaker 未对 Hunspell 的源代码进行任何修改。这意味着您可以直接从 Hunspell 网站直接下载 Hunspell 的最新源代码，网址为：http://hunspell.sourceforge.net
