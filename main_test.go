@@ -8,28 +8,31 @@ import (
 	"testing"
 )
 
-func TestUnRar(t *testing.T) {
+func TestUnarchive(t *testing.T) {
 	tcs := []struct {
 		filename string
 		want     []string
 	}{
 		{"./test/test.7z", []string{"test/tmp/7z"}},
 		{"./test/test.tar", []string{"test/tmp/tar"}},
-		{"./test/test.bz2", []string{"test/tmp/bz2"}},
+		{"./test/test.rar", []string{"test/tmp/rar"}},
 		{"./test/test.tar.bz2", []string{"test/tmp/tarbz2"}},
 		{"./test/test.tar.gz", []string{"test/tmp/targz"}},
-		{"./test/test.rar", []string{"test/tmp/rar"}},
+		// {"./test/test.bz2", []string{"test/tmp/bz2"}},
 	}
+	// des, err := ioutil.TempDir("", "archiver_test")
+	des := "test/tmp"
 	for _, tc := range tcs {
 		f := &File{path: tc.filename}
-		err := unRar(f)
+		err := Unarchive(f.path, des)
 		if err != nil {
 			log.Fatal(err)
 		}
-		got := getlist("./test/tmp")
+		got := getlist(des)
 		if !sliceCmp(tc.want, got) {
 			t.Errorf("\nwant: %v\ngot: %v\n", tc.want, got)
 		}
+		os.RemoveAll(des)
 	}
 }
 

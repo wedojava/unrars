@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/wedojava/go-unarr"
+	"github.com/gen2brain/go-unarr"
+	"github.com/mholt/archiver/v3"
 )
 
 type File struct {
@@ -43,18 +44,23 @@ func incomingFiles(dir string) <-chan *File {
 	return ch
 }
 
-func unRar(f *File) error {
-	a, err := unarr.NewArchive(f.path)
-	// a, err := unarr.NewArchive("./test/test.7z")
-	if err != nil {
-		log.Printf("[-] unRar err: %v", err)
+func Unarchive(src, des string) error {
+	is7z := strings.HasSuffix(src, ".7z")
+	if is7z {
+		a, err := unarr.NewArchive(src)
+		if err != nil {
+			return err
+		}
+		_, err = a.Extract(des)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := archiver.Unarchive(src, des)
+		if err != nil {
+			return err
+		}
 	}
-	defer a.Close()
-	lst, err := a.Extract("./test/tmp")
-	if err != nil {
-		log.Printf("[-] unRar extract err: %v", err)
-	}
-	fmt.Println(lst)
 	return nil
 }
 
