@@ -1,10 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gen2brain/go-unarr"
@@ -18,12 +21,27 @@ type File struct {
 	modTime time.Time
 }
 
+var source = flag.String("s", "./archives", "where is archives?")
+
+var done = make(chan struct{})
+var sema chan struct{}
+
+func cancelled() bool {
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
+}
+
 func incomingFiles(dir string) <-chan *File {
 	ch := make(chan *File)
 	go func() {
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+				fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n",
+					path, err)
 				return err
 			}
 			if !info.IsDir() && info.Size() != int64(0) { // is file that not 0 bytes.
@@ -61,9 +79,44 @@ func Unarchive(src, des string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
-func main() {
+func handle(src, des string) {
+	select {
+	case sema <- struct{}{}: // acquire token
+	case <-done:
+		fmt.Println("Cancelled.")
+	}
+	defer func() { <-sema }() // release token
+	var n sync.WaitGroup
+	for f := range incomingFiles(src) {
+		n.Add(1)
+		go func(f *File) {
+			n.Done()
+			start := time.Now()
+			err := Unarchive(f.path, "./archives")
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Printf("%s, %s, %d bytes\n", f.name, time.Since(start), f.size)
+		}(f)
+	}
+	n.Wait()
+}
 
+func main() {
+	defer func() { select {} }()
+	flag.Parse()
+	go func() {
+		os.Stdin.Read(make([]byte, 1)) // read a single byte.
+		close(done)
+		os.Exit(0)
+	}()
+	cpuUseNum := runtime.NumCPU() - 1
+	runtime.GOMAXPROCS(cpuUseNum)
+	sema = make(chan struct{}, cpuUseNum)
+	// go handle("./test", "./unarchives")
+	go handle(*source, "./unarchives")
 }
