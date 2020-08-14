@@ -18,7 +18,7 @@ func TestUnarchive(t *testing.T) {
 		{"./test/test.rar", []string{"test/tmp/rar"}},
 		{"./test/test.tar.bz2", []string{"test/tmp/tarbz2"}},
 		{"./test/test.tar.gz", []string{"test/tmp/targz"}},
-		// {"./test/test.bz2", []string{"test/tmp/bz2"}},
+		// {"./test/test.img.bz2", []string{"test/tmp/test.img"}},
 	}
 	// des, err := ioutil.TempDir("", "archiver_test")
 	des := "test/tmp"
