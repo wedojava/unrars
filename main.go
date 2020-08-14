@@ -23,8 +23,8 @@ type File struct {
 }
 
 var (
-	source      = flag.String("s", "./archives", "where is archives at?")
-	destination = flag.String("d", "./decompressed", "decompress to where?")
+	source      = flag.String("s", "./", "where is archives at?")
+	destination = flag.String("d", "./_decompressed", "decompress to where?")
 	done        = make(chan struct{})
 	sema        chan struct{}
 )
