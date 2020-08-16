@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/wedojava/unrars"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,18 +14,18 @@ func TestUnarchive(t *testing.T) {
 		filename string
 		want     []string
 	}{
-		{"./test/test.7z", []string{"test/tmp/7z"}},
-		{"./test/test.tar", []string{"test/tmp/tar"}},
-		{"./test/test.rar", []string{"test/tmp/rar"}},
-		{"./test/test.tar.bz2", []string{"test/tmp/tarbz2"}},
-		{"./test/test.tar.gz", []string{"test/tmp/targz"}},
-		// {"./test/test.img.bz2", []string{"test/tmp/test.img"}},
+		{"../test/test.7z", []string{"../test/tmp/7z"}},
+		{"../test/test.tar", []string{"../test/tmp/tar"}},
+		{"../test/test.rar", []string{"../test/tmp/rar"}},
+		{"../test/test.tar.bz2", []string{"../test/tmp/tarbz2"}},
+		{"../test/test.tar.gz", []string{"../test/tmp/targz"}},
+		{"../test/test.img.bz2", []string{"../test/tmp/test.img"}},
 	}
 	// des, err := ioutil.TempDir("", "archiver_test")
-	des := "test/tmp"
+	des := "../test/tmp"
 	for _, tc := range tcs {
-		f := &File{path: tc.filename}
-		err := Unarchive(f.path, des)
+		f := &unrars.File{Path: tc.filename}
+		err := unrars.Unarchive(f.Path, des)
 		if err != nil {
 			log.Fatal(err)
 		}
