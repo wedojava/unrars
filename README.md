@@ -4,7 +4,7 @@ unrars is a decompress app, use cpus as more as possible, decompress more tarbal
 
 **By default**, it'll treat tarballs at `./` and decompress to `./_decompress`
 
-unrars can decompress archives: **rar, tar, tar.gz, tar.bz2, zip, 7z**
+unrars can decompress archives: **rar, tar, tar.gz, tar.bz2, bz2, zip, 7z**
 
 # Usage
 
