@@ -90,22 +90,33 @@ func bz2Decompress3(src, des string) error {
 
 // 32.65924852s
 func bz2Decompress(src, des string) error {
-	if err := os.MkdirAll(des, 0755); err != nil {
-		return err
-	}
+	var bzReader io.Reader
+	var f, w *os.File
 	filename := filepath.Join(des, getFilename(src))
-	f, err := os.Open(src)
+	err := func() error { // file obj prepare
+		if err := os.MkdirAll(des, 0755); err != nil {
+			return err
+		}
+		f, err := os.Open(src)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		w, err = os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
+		if err != nil {
+			return err
+		}
+		defer w.Close()
+		return nil
+	}()
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	bzReader := bzip2.NewReader(f)
-	w, _ := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
-	if err != nil {
-		return err
-	}
-	ra := readahead.NewReader(bzReader)
+
+	bzReader = bzip2.NewReader(f)
+	ra := readahead.NewReader(bzReader) // use readahead to optimize
 	defer ra.Close()
+
 	start := time.Now()
 	io.Copy(w, ra)
 	fmt.Println(time.Since(start))
