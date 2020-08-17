@@ -21,33 +21,34 @@ var (
 )
 
 func handle(src, des string) {
+	start := time.Now()
 	select {
 	case sema <- struct{}{}: // acquire token
 	case <-unrars.Done:
-		fmt.Println("Cancelled.")
+		fmt.Println("[!] Cancelled.")
 	}
 	defer func() { <-sema }() // release token
 	var n sync.WaitGroup
 	for f := range unrars.IncomingFiles(src) {
 		n.Add(1)
 		go func(f *unrars.File) {
-			n.Done()
+			defer n.Done()
 			start := time.Now()
 			err := unrars.Unarchive(f.Path, filepath.Join(des, f.Name))
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			fmt.Printf("%s, %s, %d bytes\n", f.Name, time.Since(start), f.Size)
+			fmt.Printf("[+] %s, %s, %d bytes\n", f.Name, time.Since(start), f.Size)
 		}(f)
 	}
 	n.Wait()
+	fmt.Printf("\n[+] Time consumed: %v\n", time.Since(start))
+	fmt.Printf("\n[+] Done.\n")
 }
 
 func main() {
-	start := time.Now()
 	defer func() {
-		fmt.Printf("\nTime consumed: %d\n", time.Since(start))
 		select {}
 	}()
 	flag.Parse()
