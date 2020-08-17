@@ -11,6 +11,7 @@ import (
 	"github.com/mholt/archiver"
 )
 
+// File is file contains many details we need to send to channel
 type File struct {
 	Path    string
 	Name    string
@@ -18,6 +19,7 @@ type File struct {
 	ModTime time.Time
 }
 
+// Done is the channel for cancel
 var Done = make(chan struct{})
 
 func cancelled() bool {
@@ -29,12 +31,14 @@ func cancelled() bool {
 	}
 }
 
+// IncomingFiles find out all files, by walk the dir and make Files,
+// pull it to channel then return
 func IncomingFiles(dir string) <-chan *File {
 	ch := make(chan *File)
 	go func() {
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n",
+				fmt.Printf("[-] prevent panic by handling failure accessing a path %q: %v",
 					path, err)
 				return err
 			}
@@ -49,16 +53,17 @@ func IncomingFiles(dir string) <-chan *File {
 			return nil
 		})
 		if err != nil {
-			fmt.Printf("error walking the path %q: %v\n", dir, err)
+			fmt.Printf("[-] error walking the path %q: %v", dir, err)
 		}
 		close(ch)
 	}()
 	return ch
 }
 
+// Unarchive will treat file at src and unarchive it to des folder
 func Unarchive(src, des string) error {
 	if cancelled() {
-		return fmt.Errorf("Cancelled.")
+		return fmt.Errorf("[-] cancelled")
 	}
 	is7z := strings.HasSuffix(src, ".7z")
 	isbz2 := strings.HasSuffix(src, ".bz2") && !strings.HasSuffix(src, ".tar.bz2")
