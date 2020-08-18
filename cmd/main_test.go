@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/wedojava/unrars"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/wedojava/unrars"
 )
 
 func TestUnarchive(t *testing.T) {
@@ -14,11 +15,12 @@ func TestUnarchive(t *testing.T) {
 		filename string
 		want     []string
 	}{
-		{"../test/test.7z", []string{"../test/tmp/7z"}},
-		{"../test/test.tar", []string{"../test/tmp/tar"}},
-		{"../test/test.rar", []string{"../test/tmp/rar"}},
-		{"../test/test.tar.bz2", []string{"../test/tmp/tarbz2"}},
-		{"../test/test.tar.gz", []string{"../test/tmp/targz"}},
+		// test for situation pour all files to same folder.
+		// {"../test/test.7z", []string{"../test/tmp/7z"}},
+		// {"../test/test.tar", []string{"../test/tmp/tar"}},
+		// {"../test/test.rar", []string{"../test/tmp/rar"}},
+		// {"../test/test.tar.bz2", []string{"../test/tmp/tarbz2"}},
+		// {"../test/test.tar.gz", []string{"../test/tmp/targz"}},
 		{"../test/test.img.bz2", []string{"../test/tmp/test.img"}},
 	}
 	// des, err := ioutil.TempDir("", "archiver_test")

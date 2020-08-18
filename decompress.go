@@ -65,6 +65,7 @@ func Unarchive(src, des string) error {
 	if cancelled() {
 		return fmt.Errorf("[-] cancelled")
 	}
+	isexe := strings.HasSuffix(src, ".exe")
 	is7z := strings.HasSuffix(src, ".7z")
 	isbz2 := strings.HasSuffix(src, ".bz2") && !strings.HasSuffix(src, ".tar.bz2")
 	switch {
@@ -80,22 +81,11 @@ func Unarchive(src, des string) error {
 		if err := bz2Decompress(src, des); err != nil {
 			return err
 		}
+	case isexe:
 	default:
 		if err := archiver.Unarchive(src, des); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// getFilename extract filename without ".bz2" ext name from src
-func getFilename(src string) string {
-	rs := []rune(src)
-	i := strings.LastIndex(src, "\\")
-	if i == -1 {
-		i = strings.LastIndex(src, "/")
-	}
-	res := string(rs[i+1:])
-	res = strings.Split(res, ".bz2")[0]
-	return res
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
@@ -34,7 +33,12 @@ func handle(src, des string) {
 		go func(f *unrars.File) {
 			defer n.Done()
 			start := time.Now()
-			err := unrars.Unarchive(f.Path, filepath.Join(des, f.Name))
+			// to avoid duplicating, this Unarchive will pour files to the subfolder
+			// named with the archive file name
+			// err := unrars.Unarchive(f.Path, filepath.Join(des, f.Name))
+
+			// ignore duplicating, pour all files to the same folder: des
+			err := unrars.Unarchive(f.Path, des)
 			if err != nil {
 				log.Println(err)
 				return
@@ -58,10 +62,10 @@ func main() {
 		os.Exit(0)
 	}()
 	cpuUseNum := runtime.NumCPU() - 1
-	runtime.GOMAXPROCS(cpuUseNum)
-	// TODO: if cpu cannot be used 100% on working, rm this assignment.
-	*max = cpuUseNum
+	if cpuUseNum > 0 {
+		runtime.GOMAXPROCS(cpuUseNum)
+	}
 	sema = make(chan struct{}, *max)
-	// go unrars.Handle("./test", "./unarchives")
+	// go handle("./test", "./unarchives")
 	go handle(*source, *destination)
 }
