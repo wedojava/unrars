@@ -1,0 +1,2 @@
+- name: Golang CGO cross compiler
+  uses: crazy-max/ghaction-xgo@v1.4.0
