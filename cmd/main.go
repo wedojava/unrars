@@ -15,18 +15,18 @@ import (
 var (
 	source      = flag.String("s", "./", "where is archives at?")
 	destination = flag.String("d", "./_decompressed", "decompress to where?")
-	// max         = flag.Int("max", 2000, "Coroutine upper limit!")// limit channel count
-	// sema        chan struct{}// limit channel count
+	max         = flag.Int("max", 500, "Coroutine upper limit!") // limit channel quantity
+	sema        chan struct{}                                    // limit channel quantity
 )
 
 func handle(src, des string) {
 	start := time.Now()
 	select {
-	// case sema <- struct{}{}: // acquire token// limit channel count
+	case sema <- struct{}{}: // acquire token// limit channel quantity
 	case <-unrars.Done:
 		fmt.Println("[!] Cancelled.")
 	}
-	// defer func() { <-sema }() // release token// limit channel count
+	defer func() { <-sema }() // release token// limit channel quantity
 	var n sync.WaitGroup
 	for f := range unrars.IncomingFiles(src) {
 		n.Add(1)
@@ -65,7 +65,7 @@ func main() {
 	if cpuUseNum > 0 {
 		runtime.GOMAXPROCS(cpuUseNum)
 	}
-	// sema = make(chan struct{}, *max) // limit channel count
+	sema = make(chan struct{}, *max) // limit channel quantity
 	// go handle("./test", "./unarchives")
 	go handle(*source, *destination)
 }
