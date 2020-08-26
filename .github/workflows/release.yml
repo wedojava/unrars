@@ -32,7 +32,7 @@ jobs:
     - name: Environment Printer
       uses: managedkaos/print-env@v1.0
 
-    - uses: wedojava/go-release-action@master
+    - uses: wedojava/unrars@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
